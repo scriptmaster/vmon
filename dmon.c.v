@@ -4,7 +4,7 @@ module vmon
 
 import os
 import sync
-import c
+import vmon.c
 
 const used_import = c.used_import
 const ctx = &Context(unsafe { nil }) // Sorry - I could find no other way - this is C interop :(

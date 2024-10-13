@@ -193,7 +193,7 @@ pub fn watch(path string, watch_cb FnWatchCallback, flags u32, user_data voidptr
 		ctx_ptr.cb_wrappers << watch_cb_wrap
 	}
 
-	wid := C.dmon_watch(path.str, c_watch_callback_wrap, flags, watch_cb_wrap).id
+	wid := C.dmon_watch(charptr(path.str), voidptr(c_watch_callback_wrap), flags, watch_cb_wrap).id
 
 	if wid == 0 {
 		return error(@MOD + '.' + @FN +

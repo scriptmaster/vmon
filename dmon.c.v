@@ -10,7 +10,7 @@ const used_import = c.used_import
 const ctx = &Context(unsafe { nil }) // Sorry - I could find no other way - this is C interop :(
 
 pub enum WatchFlag {
-	recursive       = C.DMON_WATCHFLAGS_RECURSIVE // 0x1, monitor all child directories
+	recursive       = C.DMON_WATCHFLAGS_RECURSIVE       // 0x1, monitor all child directories
 	follow_symlinks = C.DMON_WATCHFLAGS_FOLLOW_SYMLINKS // 0x2, resolve symlinks (linux only)
 	// outofscope_links = C.DMON_WATCHFLAGS_OUTOFSCOPE_LINKS // 0x4, TODO not implemented in dmon C yet
 	// ignore_directories = C.DMON_WATCHFLAGS_IGNORE_DIRECTORIES // 0x8, TODO not implemented in dmon C yet
@@ -52,7 +52,7 @@ fn init() {
 
 	// TODO Sorry - I have no other choice
 	unsafe {
-		x := &vmon.ctx
+		x := &ctx
 		*x = ctx_oof
 	}
 	C.dmon_init()
@@ -66,7 +66,7 @@ fn init() {
 
 @[manualfree; unsafe]
 fn done() {
-	mut ctx_ptr := unsafe { vmon.ctx }
+	mut ctx_ptr := unsafe { ctx }
 	if !isnil(ctx_ptr) && !ctx_ptr.freed {
 		dbg(@MOD, @FN, '')
 		dbg(@MOD, @FN, 'freeing resources')
@@ -182,13 +182,13 @@ pub fn watch(path string, watch_cb FnWatchCallback, flags u32, user_data voidptr
 	}
 
 	watch_cb_wrap := &WatchCallBackWrap{
-		path: path
-		mutex: sync.new_mutex()
+		path:      path
+		mutex:     sync.new_mutex()
 		user_data: user_data
-		callback: watch_cb
+		callback:  watch_cb
 	}
 
-	mut ctx_ptr := unsafe { vmon.ctx }
+	mut ctx_ptr := unsafe { ctx }
 	if !isnil(ctx_ptr) {
 		ctx_ptr.cb_wrappers << watch_cb_wrap
 	}
@@ -204,7 +204,7 @@ pub fn watch(path string, watch_cb FnWatchCallback, flags u32, user_data voidptr
 
 pub fn unwatch(id WatchID) {
 	dbg(@MOD, @FN, 'unwatching "${id}"') // Good for crash debugging
-	mut ctx_ptr := unsafe { vmon.ctx }
+	mut ctx_ptr := unsafe { ctx }
 	C.dmon_unwatch(c.WatchID{ id: u32(id) })
 	if !isnil(ctx_ptr) {
 		wid := int(id) - 1
